@@ -24,9 +24,9 @@
     app.use('/static', express.static(path.join(__dirname, 'public/static')));
 
     app.get('/*', function (req, res) {
-        //if (req.url == '/') {
-        //    res.redirect('/' + utils.randomString(5));
-        //}
+        if (req.url == '/') {
+            res.redirect('/default');
+        }
         res.sendFile((path.join(__dirname, 'public', 'index.html')));
     });
 

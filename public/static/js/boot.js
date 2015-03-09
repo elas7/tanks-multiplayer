@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    var Boot = function () {};
+    var Boot = function (id) {
+        this.id = id;
+    };
 
     Boot.prototype = {
 

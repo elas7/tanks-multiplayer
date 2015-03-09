@@ -1,21 +1,31 @@
-(function ($) {
+(function () {
 
     var socket = io();
     var room = location.pathname.split('/').pop();
 
-    socket.on('created', function(room) {
-        console.log('created room', room);
-        isInitiator = true;
+    // on creating room, set ID and start game
+    socket.on('created', function(message) {
+        console.log('created room', message['room']);
+        console.log('Your id is', message['id']);
+        window['tanks']['myId'] = message['id'];
+        window['tanks'].startGame();
     });
 
-    socket.on('joined', function(room) {
-        console.log('joined room', room);
-        connect();
+    // on joining a room, set ID and start game
+    socket.on('joined', function(message) {
+        console.log('joined room', message['room']);
+        console.log('Your id is ', message['id']);
+        window['tanks']['myId'] = message['id'];
+        window['tanks'].startGame();
     });
 
-    socket.on('join', function (room){
-        console.log('Another peer joined our room ' + room);
-        connect();
+    socket.on('join', function (message){
+        console.log('Another peer joined our room ' + message['room']);
+    });
+
+    socket.on('enemy data', function (data){
+        console.log('Received enemy data');
+        window['tanks'].Game.prototype.spawnEnemies(data);
     });
 
     socket.on('message', function(message) {
@@ -43,6 +53,15 @@
         socket.emit('message', room, message);
     }
 
-}(jQuery));
+    window['tanks'].requestEnemyData = function() {
+        console.log('request enemy data for room', room);
+        socket.emit('request enemy data', room);
+    };
+
+    // connect to room based on URL
+    console.log('Joining with key:', room);
+    socket.emit('create or join', room);
+
+}());
 
 

@@ -1,7 +1,9 @@
 (function() {
     'use strict';
 
-    var EnemyTank = window['tanks'].EnemyTank;
+    var Tank = window['tanks'].Tank;
+
+    var myId;
 
     var land;
 
@@ -9,20 +11,17 @@
     var tank;
     var turret;
 
-    var enemies;
     var enemyBullets;
-    var enemiesTotal = 0;
-    var enemiesAlive = 0;
     var explosions;
 
     var logo;
 
-    var currentSpeed = 0;
     var cursors;
 
     var bullets;
-    var fireRate = 100;
-    var nextFire = 0;
+
+    var player;
+    var tanksList;
 
     var Game = function () {};
 
@@ -35,53 +34,18 @@
         land = game.add.tileSprite(0, 0, 800, 600, 'earth');
         land.fixedToCamera = true;
 
-        //  The base of our tank
-        tank = game.add.sprite(0, 0, 'tank', 'tank1');
-        tank.anchor.setTo(0.5, 0.5);
-        tank.animations.add('move', ['tank1', 'tank2', 'tank3', 'tank4', 'tank5', 'tank6'], 20, true);
+        myId = window['tanks'].myId;
+        tanksList = {};
+        player = new Tank(myId, game, tank);
 
-        //  This will force it to decelerate and limit its speed
-        game.physics.enable(tank, Phaser.Physics.ARCADE);
-        tank.body.collideWorldBounds = true;
+        tanksList[myId] = player;
 
-        //  Finally the turret that we place on-top of the tank body
-        turret = game.add.sprite(0, 0, 'tank', 'turret');
-        turret.anchor.setTo(0.3, 0.5);
+        window['tanks'].requestEnemyData();
 
-        //  A shadow below our tank
-        shadow = game.add.sprite(0, 0, 'tank', 'shadow');
-        shadow.anchor.setTo(0.5, 0.5);
-
-        //  The enemies bullet group
-        enemyBullets = game.add.group();
-        enemyBullets.enableBody = true;
-        enemyBullets.physicsBodyType = Phaser.Physics.ARCADE;
-        enemyBullets.createMultiple(100, 'bullet');
-
-        enemyBullets.setAll('anchor.x', 0.5);
-        enemyBullets.setAll('anchor.y', 0.5);
-        enemyBullets.setAll('outOfBoundsKill', true);
-        enemyBullets.setAll('checkWorldBounds', true);
-
-        //  Create some baddies to waste :)
-        enemies = [];
-
-        enemiesTotal = 20;
-        enemiesAlive = 20;
-
-        for (var i = 0; i < enemiesTotal; i++) {
-            enemies.push(new EnemyTank(i, game, tank, enemyBullets));
-        }
-
-        //  Our bullet group
-        bullets = game.add.group();
-        bullets.enableBody = true;
-        bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        bullets.createMultiple(30, 'bullet');
-        bullets.setAll('anchor.x', 0.5);
-        bullets.setAll('anchor.y', 0.5);
-        bullets.setAll('outOfBoundsKill', true);
-        bullets.setAll('checkWorldBounds', true);
+        tank = player.tank;
+        turret = player.turret;
+        shadow = player.shadow;
+        bullets = player.bullets;
 
         //  Explosion pool
         explosions = game.add.group();
@@ -118,70 +82,42 @@
 
     Game.prototype.update = function() {
 
+        // Added this because sometimes a spawned tank appears over the logo
+        logo.bringToTop();
+
+        player.input.left = cursors.left.isDown;
+        player.input.right = cursors.right.isDown;
+        player.input.up = cursors.up.isDown;
+        player.input.fire = game.input.activePointer.isDown;
+        player.input.tx = game.input.x+ game.camera.x;
+        player.input.ty = game.input.y+ game.camera.y;
+
+        player.turret.rotation = this.game.physics.arcade.angleToPointer(player.tank);
+
         game.physics.arcade.overlap(enemyBullets, tank, bulletHitPlayer, null, this);
-
-        enemiesAlive = 0;
-
-        for (var i = 0; i < enemies.length; i++)
-        {
-            if (enemies[i].alive)
-            {
-                enemiesAlive++;
-                game.physics.arcade.collide(tank, enemies[i].tank);
-                game.physics.arcade.overlap(bullets, enemies[i].tank, bulletHitEnemy, null, this);
-                enemies[i].update();
-            }
-        }
-
-        if (cursors.left.isDown)
-        {
-            tank.angle -= 4;
-        }
-        else if (cursors.right.isDown)
-        {
-            tank.angle += 4;
-        }
-
-        if (cursors.up.isDown)
-        {
-            //  The speed we'll travel at
-            currentSpeed = 300;
-            tank.animations.play('move');
-        }
-        else
-        {
-            if (currentSpeed > 0)
-            {
-                currentSpeed -= 4;
-            }
-            // Disable animation if the the tank is about to stop
-            if (currentSpeed < 10) {
-                tank.animations.stop();
-            }
-        }
-
-        if (currentSpeed > 0)
-        {
-            game.physics.arcade.velocityFromRotation(tank.rotation, currentSpeed, tank.body.velocity);
-        }
 
         land.tilePosition.x = -game.camera.x;
         land.tilePosition.y = -game.camera.y;
 
-        //  Position all the parts and align rotations
-        shadow.x = tank.x;
-        shadow.y = tank.y;
-        shadow.rotation = tank.rotation;
+        for (var i in tanksList) {
+            if (!tanksList[i]) {
+                continue;
+            }
+            var curBullets = tanksList[i].bullets;
+            var curTank = tanksList[i].tank;
+            for (var j in tanksList) {
+                if (!tanksList[j]) {
+                    continue;
+                }
+                if (j!=i) {
+                    var targetTank = tanksList[j].tank;
+                    game.physics.arcade.overlap(curBullets, targetTank, bulletHitPlayer, null, this);
 
-        turret.x = tank.x;
-        turret.y = tank.y;
-
-        turret.rotation = game.physics.arcade.angleToPointer(turret);
-
-        if (game.input.activePointer.isDown)
-        {
-            //  Boom!
-            fire();
+                }
+                if (tanksList[j].alive) {
+                    tanksList[j].update();
+                }
+            }
         }
 
     };
@@ -192,41 +128,22 @@
 
     }
 
-    function bulletHitEnemy (tank, bullet) {
-
-        bullet.kill();
-
-        var destroyed = enemies[tank.name].damage();
-
-        if (destroyed)
-        {
-            var explosionAnimation = explosions.getFirstExists(false);
-            explosionAnimation.reset(tank.x, tank.y);
-            explosionAnimation.play('kaboom', 30, false, true);
-        }
-
-    }
-
-    function fire () {
-
-        if (game.time.now > nextFire && bullets.countDead() > 0)
-        {
-            nextFire = game.time.now + fireRate;
-
-            var bullet = bullets.getFirstExists(false);
-
-            bullet.reset(turret.x, turret.y);
-
-            bullet.rotation = game.physics.arcade.moveToPointer(bullet, 1000, game.input.activePointer, 500);
-        }
-
-    }
-
     Game.prototype.render = function () {
 
         // game.debug.text('Active Bullets: ' + bullets.countLiving() + ' / ' + bullets.length, 32, 32);
-        game.debug.text('Enemies: ' + enemiesAlive + ' / ' + enemiesTotal, 32, 32);
+        //game.debug.text('Enemies: ' + enemiesAlive + ' / ' + enemiesTotal, 32, 32);
 
+    };
+
+    Game.prototype.spawnEnemies = function (arrayOfEnemies) {
+        console.log('enemies', arrayOfEnemies);
+        arrayOfEnemies.forEach(function(enemy) {
+            // add if enemy is not already on tanksList
+            if (!(enemy in tanksList)) {
+                tanksList[enemy] = new Tank(enemy, game, tank);
+            }
+        });
+        console.log('tanklist', tanksList)
     };
 
     window['tanks'] = window['tanks'] || {};
