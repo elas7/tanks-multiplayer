@@ -1,0 +1,42 @@
+$bgColor: rgba(255, 255, 255, 0.45);
+
+* {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: url("../img/bg.jpg");
+  background-size: cover;
+  color: $bgColor;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  height: 2em;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  line-height: 2em;
+  overflow: hidden;
+  text-align: center;
+}
+
+footer {
+  padding: 26px;
+}
+
+#game {
+  canvas {
+    margin: 0 auto;
+  }
+}

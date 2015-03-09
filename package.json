@@ -1,0 +1,20 @@
+{
+  "name": "tanks-multiplayer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test specified\" && exit 0",
+    "start": "node index.js",
+    "postinstall": "./node_modules/bower/bin/bower install"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bower": "^1.3.12 ",
+    "express": "^4.12.2",
+    "hbs": "^2.9.0",
+    "node-sass-middleware": "^0.5.0",
+    "socket.io": "^1.3.5"
+  }
+}
