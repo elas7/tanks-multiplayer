@@ -1,7 +1,9 @@
-monotron-duo-multiplayer
+tanks-multiplayer
 ===========
 
-A multiplayer online Monotron Duo made with Web Audio API and webRTC.
+Experiment on multiplayer gaming with phaser and sockets.io
+The idea is to implement entity interpolation, input prediction, and lag compensation.
+Based on the example game 'tanks' for phaser.
 
 Installation
 ----------------------------
@@ -9,12 +11,12 @@ Installation
 Clone the repo by running:
 
 ```bash
-git clone git://github.com/elas7/monotron-duo-multiplayer
+git clone git://github.com/elas7/tanks-multiplayer
 ```
 
 Enter the directory and run the build script:
 ```bash
-cd webrtc-video-conference && npm install && bower install
+cd tanks-multiplayer && npm install && bower install
 ```
 
 Run the server with:
@@ -22,4 +24,4 @@ Run the server with:
 node index.js
 ```
 
-Go to localhost:8080 and send the link to your partner to start.
+The game runs in localhost:8080
