@@ -42,13 +42,15 @@
 
         //  This will force it to decelerate and limit its speed
         game.physics.enable(tank, Phaser.Physics.ARCADE);
-        tank.body.drag.set(0.2);
-        tank.body.maxVelocity.setTo(400, 400);
         tank.body.collideWorldBounds = true;
 
         //  Finally the turret that we place on-top of the tank body
         turret = game.add.sprite(0, 0, 'tank', 'turret');
         turret.anchor.setTo(0.3, 0.5);
+
+        //  A shadow below our tank
+        shadow = game.add.sprite(0, 0, 'tank', 'shadow');
+        shadow.anchor.setTo(0.5, 0.5);
 
         //  The enemies bullet group
         enemyBullets = game.add.group();
@@ -67,20 +69,15 @@
         enemiesTotal = 20;
         enemiesAlive = 20;
 
-        for (var i = 0; i < enemiesTotal; i++)
-        {
+        for (var i = 0; i < enemiesTotal; i++) {
             enemies.push(new EnemyTank(i, game, tank, enemyBullets));
         }
-
-        //  A shadow below our tank
-        shadow = game.add.sprite(0, 0, 'tank', 'shadow');
-        shadow.anchor.setTo(0.5, 0.5);
 
         //  Our bullet group
         bullets = game.add.group();
         bullets.enableBody = true;
         bullets.physicsBodyType = Phaser.Physics.ARCADE;
-        bullets.createMultiple(30, 'bullet', 0, false);
+        bullets.createMultiple(30, 'bullet');
         bullets.setAll('anchor.x', 0.5);
         bullets.setAll('anchor.y', 0.5);
         bullets.setAll('outOfBoundsKill', true);
@@ -149,12 +146,17 @@
         {
             //  The speed we'll travel at
             currentSpeed = 300;
+            tank.animations.play('move');
         }
         else
         {
             if (currentSpeed > 0)
             {
                 currentSpeed -= 4;
+            }
+            // Disable animation if the the tank is about to stop
+            if (currentSpeed < 10) {
+                tank.animations.stop();
             }
         }
 
