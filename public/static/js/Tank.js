@@ -80,8 +80,22 @@
         this.turret.x = this.tank.x;
         this.turret.y = this.tank.y;
 
-        for (var i in this.input) {
-            this.cursor[i] = this.input[i];
+        var inputChanged = (
+            this.cursor.left != this.input.left ||
+            this.cursor.right != this.input.right ||
+            this.cursor.up != this.input.up ||
+            this.cursor.fire != this.input.fire
+        );
+
+        if (inputChanged) {
+            if (this.tank.id == this.game.myId) {
+                this.input.x = this.tank.x;
+                this.input.y = this.tank.y;
+                this.input.angle = this.tank.angle;
+                this.input.rot = this.turret.rotation;
+            }
+
+            window['tanks'].handleInput(this.input);
         }
 
         if (this.cursor.left)

@@ -58,6 +58,12 @@
         socket.emit('request enemy data', room);
     };
 
+    window['tanks'].handleInput = function(input) {
+        console.log('handle input');
+        socket.emit('handle input', room, input);
+    };
+
+
     // connect to room based on URL
     console.log('Joining with key:', room);
     socket.emit('create or join', room);

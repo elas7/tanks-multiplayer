@@ -23,7 +23,9 @@
     var player;
     var tanksList;
 
-    var Game = function () {};
+    var Game = function () {
+        this.myId = window['tanks'].myId;
+    };
 
     Game.prototype.create = function () {
 
@@ -34,7 +36,7 @@
         land = game.add.tileSprite(0, 0, 800, 600, 'earth');
         land.fixedToCamera = true;
 
-        myId = window['tanks'].myId;
+
         tanksList = {};
         player = new Tank(myId, game, tank);
 
@@ -143,7 +145,18 @@
                 tanksList[enemy] = new Tank(enemy, game, tank);
             }
         });
-        console.log('tanklist', tanksList)
+        console.log('updated tanklist:', tanksList)
+    };
+
+    Game.prototype.updateState = function(id, state) {
+        if (tanksList[id])  {
+            tanksList[id].cursor = state;
+            tanksList[id].tank.x = state.x;
+            tanksList[id].tank.y = state.y;
+            tanksList[id].tank.angle = state.angle;
+            tanksList[id].turret.rotation = state.rot;
+            tanksList[id].update();
+        }
     };
 
     window['tanks'] = window['tanks'] || {};
