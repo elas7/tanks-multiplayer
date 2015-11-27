@@ -5,6 +5,8 @@ Experiment on multiplayer gaming with phaser and sockets.io
 The idea is to implement entity interpolation, input prediction, and lag compensation.
 Based on the example game 'tanks' for phaser.
 
+Note: The game is a WIP, it is not currently working.
+
 Installation
 ----------------------------
 
